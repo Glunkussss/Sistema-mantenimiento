@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tareas - Sistema IUB</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/incidencias.css" />
+</head>
+<body data-required-roles="rector,supervisor,tecnico">
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div id="dashboard-header"></div>
+    
+    <main class="dashboard-main">
+        <!-- Pestañas de navegación -->
+        <section class="nav-tabs-section">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('activas')" id="tabActivas">📋 Tareas Activas</button>
+                <button class="nav-tab" onclick="switchTab('historial')" id="tabHistorial" data-roles="rector,supervisor,tecnico">📜 Historial</button>
+            </div>
+        </section>
+
+        <!-- Tab Tareas Activas -->
+        <div id="tabActivasContent" class="tab-content active">
+            <section class="controls-section">
+                <div class="controls-grid">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar tareas..." />
+                    </div>
+                    <div class="filter-box">
+                        <select id="estadoFilter" class="filter-select">
+                            <option value="">Todos los estados</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="en_progreso">En progreso</option>
+                        </select>
+                    </div>
+                    <div class="filter-box">
+                        <select id="tecnicoFilter" class="filter-select">
+                            <option value="">Todos los técnicos</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="showCreateModal()" data-roles="rector,supervisor">➕ Nueva Tarea</button>
+                </div>
+            </section>
+
+            <section class="table-section">
+                <div class="card table-container">
+                    <div class="table-header">
+                        <h3>📋 Lista de Tareas Activas</h3>
+                        <span class="task-count" id="taskCount">0 tareas</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="tareasTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>📍 Ubicación</th>
+                                    <th>🔧 Tipo Daño</th>
+                                    <th>👷 Técnico</th>
+                                    <th>⏰ Estado</th>
+                                    <th>⚡ Prioridad</th>
+                                    <th>📅 Fecha Límite</th>
+                                    <th>📝 Descripción</th>
+                                    <th class="actions-col">⚙️ Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tareasTableBody">
+                                <tr class="loading-row">
+                                    <td colspan="9">
+                                        <div class="loading-state">
+                                            <div class="loading-spinner"></div>
+                                            <p>⏳ Cargando tareas...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Tab Historial -->
+        <div id="tabHistorialContent" class="tab-content">
+            <section class="controls-section">
+                <div class="controls-grid">
+                    <div class="search-box">
+                        <input type="text" id="searchHistorial" class="search-input" placeholder="🔍 Buscar en historial..." />
+                    </div>
+                    <div class="filter-box">
+                        <select id="tecnicoHistorialFilter" class="filter-select">
+                            <option value="">Todos los técnicos</option>
+                        </select>
+                    </div>
+                    <div class="filter-box">
+                        <input type="date" id="fechaInicioFilter" class="search-input" />
+                    </div>
+                    <div class="filter-box">
+                        <input type="date" id="fechaFinFilter" class="search-input" />
+                    </div>
+                </div>
+            </section>
+
+            <section class="table-section">
+                <div class="card table-container">
+                    <div class="table-header">
+                        <h3>📜 Historial de Tareas Completadas</h3>
+                        <span class="task-count" id="historialCount">0 registros</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="historialTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>📍 Ubicación</th>
+                                    <th>🔧 Tipo Daño</th>
+                                    <th>👷 Técnico</th>
+                                    <th>⏱️ Tiempo</th>
+                                    <th>📅 Completada</th>
+                                    <th>✅ Acciones</th>
+                                    <th>⚙️ Ver</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historialTableBody">
+                                <tr class="loading-row">
+                                    <td colspan="8">
+                                        <div class="loading-state">
+                                            <div class="loading-spinner"></div>
+                                            <p>⏳ Cargando historial...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal Crear Tarea -->
+<div id="tareaModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">➕ Nueva Tarea</h3>
+      <button class="modal-close" onclick="hideModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="tareaForm">
+        <div class="input-group">
+          <label for="incidenciaSelect">⚠️ Incidencia</label>
+          <select id="incidenciaSelect" class="form-control" required>
+            <option value="">Seleccionar incidencia</option>
+            <!-- Opciones dinámicas aquí -->
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="descripcionIncidencia">Descripción incidencia</label>
+          <textarea id="descripcionIncidencia" class="form-control" rows="3" readonly></textarea>
+        </div>
+
+        <div class="input-group">
+          <label for="fallasReportadas">Fallas reportadas</label>
+          <textarea id="fallasReportadas" class="form-control" rows="2" readonly></textarea>
+        </div>
+
+        <div class="input-group">
+          <label for="tecnicoSelect">👷 Técnico Asignado</label>
+          <select id="tecnicoSelect" class="form-control" required>
+            <option value="">Seleccionar técnico</option>
+            <!-- Opciones dinámicas aquí -->
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="descripcion">Descripción para el técnico</label>
+          <textarea id="descripcion" class="form-control" rows="3" placeholder="Escriba las instrucciones para el técnico..." required></textarea>
+        </div>
+
+        <div class="input-group">
+          <label for="fechaLimite">⏰ Fecha Límite</label>
+          <input type="datetime-local" id="fechaLimite" class="form-control" required />
+        </div>
+
+        <div class="input-group">
+          <label for="prioridadTarea">⚡ Prioridad</label>
+          <select id="prioridadTarea" class="form-control" required>
+            <option value="baja">🟢 Baja</option>
+            <option value="media" selected>🟡 Media</option>
+            <option value="alta">🔴 Alta</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="hideModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveTarea()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Modal Actualizar Tarea -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Actualizar Tarea</h3>
+                <button class="modal-close" onclick="hideUpdateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="tareaDetails" class="tarea-details">
+                    <!-- Detalles dinámicos -->
+                </div>
+                <form id="updateForm">
+                    <div class="input-group">
+                        <label for="estadoUpdate">⏰ Estado</label>
+                        <select id="estadoUpdate" required>
+                            <option value="pendiente">🔴 Pendiente</option>
+                            <option value="en_progreso">🟡 En progreso</option>
+                            <option value="completada">🟢 Completada</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="accionesUpdate">✅ Acciones Realizadas</label>
+                        <textarea id="accionesUpdate" rows="4" placeholder="Describir las acciones realizadas..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="observacionesUpdate">📝 Observaciones</label>
+                        <textarea id="observacionesUpdate" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideUpdateModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="updateBtn" onclick="updateTarea()">💾 Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content confirm-modal">
+            <div class="modal-header">
+                <h3>⚠️ Confirmar Acción</h3>
+                <button class="modal-close" onclick="hideConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">¿Está seguro?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideConfirmModal()">Cancelar</button>
+                <button type="button" class="btn btn-delete" id="confirmBtn">✅ Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/tareas.js"></script>
+</body>
+</html>

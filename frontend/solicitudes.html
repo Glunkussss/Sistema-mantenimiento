@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitudes - Sistema IUB</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body data-required-roles="rector,supervisor,tecnico">
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+    <!-- Header -->
+    <div id="dashboard-header"></div>
+
+
+    <main class="dashboard-main">
+        <!-- Stats Cards -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📨</div>
+                    <div class="stat-content">
+                        <h3>Solicitudes Recibidas</h3>
+                        <p class="stat-number" id="totalSolicitudes">-</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-content">
+                        <h3>En Proceso</h3>
+                        <p class="stat-number" id="solicitudesProceso">-</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3>Completadas</h3>
+                        <p class="stat-number" id="solicitudesCompletadas">-</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3>Sin Asignar</h3>
+                        <p class="stat-number" id="solicitudesSinAsignar">-</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controls Section -->
+        <section class="controls-section">
+            <div class="controls-grid">
+                <div class="input-group">
+                    <input type="text" 
+                           class="search-input" 
+                           id="searchInput" 
+                           placeholder="🔍 Buscar por solicitante, descripción o ubicación...">
+                </div>
+                
+                <div class="input-group">
+                    <select class="filter-select" id="estadoFilter">
+                        <option value="">📋 Todos los estados</option>
+                        <option value="recibida">📨 Recibida</option>
+                        <option value="procesando">⏳ Procesando</option>
+                        <option value="completada">✅ Completada</option>
+                        <option value="cancelada">❌ Cancelada</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <select class="filter-select" id="tipoFilter">
+                        <option value="">🔧 Todos los tipos</option>
+                        <option value="mantenimiento">🔧 Mantenimiento</option>
+                        <option value="reparacion">⚙️ Reparación</option>
+                        <option value="limpieza">🧹 Limpieza</option>
+                        <option value="otro">📋 Otro</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="nuevaSolicitud()" data-roles="rector,supervisor">
+                    ➕ Nueva Solicitud
+                </button>
+            </div>
+        </section>
+
+        <!-- Table Section -->
+        <section class="table-section">
+            <div class="card">
+                <div class="table-header">
+                    <h3>📋 Lista de Solicitudes</h3>
+                    <div class="user-count" id="solicitudesCount">0 solicitudes</div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="data-table" id="solicitudesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Solicitante</th>
+                                <th>Descripción</th>
+                                <th>Ubicación</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Técnico Asignado</th>
+                                <th>Fecha</th>
+                                <th class="actions-col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="solicitudesTableBody">
+                            <tr class="loading-row">
+                                <td colspan="9">
+                                    <div class="loading-state">
+                                        <div class="loading-spinner"></div>
+                                        <p>Cargando solicitudes...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Nueva/Editar Solicitud -->
+    <div class="modal" id="solicitudModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">📨 Nueva Solicitud</h3>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="solicitudForm">
+                    <div class="input-group">
+                        <label for="solicitante">👤 Solicitante *</label>
+                        <input type="text" id="solicitante" name="solicitante" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="descripcion">📝 Descripción *</label>
+                        <textarea id="descripcion" name="descripcion" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="ubicacion_id">📍 Ubicación *</label>
+                        <select id="ubicacion_id" name="ubicacion_id" required>
+                            <option value="">Seleccione una ubicación</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="tipo_solicitud">🔧 Tipo de Solicitud *</label>
+                        <select id="tipo_solicitud" name="tipo_solicitud" required>
+                            <option value="">Seleccione un tipo</option>
+                            <option value="mantenimiento">🔧 Mantenimiento</option>
+                            <option value="reparacion">⚙️ Reparación</option>
+                            <option value="limpieza">🧹 Limpieza</option>
+                            <option value="otro">📋 Otro</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarSolicitud()">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Asignar Técnico -->
+    <div class="modal" id="asignarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👥 Asignar Técnico</h3>
+                <button class="modal-close" onclick="cerrarAsignarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="tecnico_asignado">👨‍🔧 Seleccionar Técnico</label>
+                    <select id="tecnico_asignado" name="tecnico_asignado">
+                        <option value="">Sin asignar</option>
+                    </select>
+                </div>
+                <p><strong>Solicitud:</strong> <span id="solicitudInfo"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarAsignarModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmarAsignacion()">✅ Asignar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cambiar Estado -->
+    <div class="modal" id="estadoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔄 Cambiar Estado</h3>
+                <button class="modal-close" onclick="cerrarEstadoModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="nuevo_estado">📋 Nuevo Estado</label>
+                    <select id="nuevo_estado" name="nuevo_estado">
+                        <option value="recibida">📨 Recibida</option>
+                        <option value="procesando">⏳ Procesando</option>
+                        <option value="completada">✅ Completada</option>
+                        <option value="cancelada">❌ Cancelada</option>
+                    </select>
+                </div>
+                <p><strong>Solicitud:</strong> <span id="estadoSolicitudInfo"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarEstadoModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmarCambioEstado()">🔄 Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/solicitudes.js"></script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Usuarios - Sistema IUB</title>
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/dashboard.css" />
+
+    </head>
+    <body data-required-roles="rector,supervisor">
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+     <div id="dashboard-header"></div>
+
+        <main class="dashboard-main">
+            <section class="controls-section">
+                <div class="controls-grid">
+                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar usuarios..." />
+                    <select id="cargoFilter" class="filter-select">
+                        <option value="">Todos los cargos</option>
+                        <option value="estudiante">Estudiante</option>
+                        <option value="rector">Rector</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="tecnico">Técnico</option>
+                    </select>
+                    <select id="estadoFilter" class="filter-select">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="openCreateModal()">➕ Nuevo Usuario</button>
+                </div>
+            </section>
+            <section class="table-section">
+                <div class="card table-container">
+                    <div class="table-header">
+                        <h3>Lista de Usuarios</h3>
+                        <span class="user-count" id="userCount">0 usuarios</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Correo</th>
+                                    <th>Cargo</th>
+                                    <th>Estado</th>
+                                    <th class="actions-col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr class="loading-row">
+                                    <td colspan="6">
+                                        <div class="loading-state">
+                                            <div class="loading-spinner"></div>
+                                            <p>Cargando usuarios...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <div id="userModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Crear Usuario</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <div class="input-group">
+                            <label for="nombre_completo">👤 Nombre Completo</label>
+                            <input type="text" id="nombre_completo" name="nombre_completo" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="correo">📧 Correo Electrónico</label>
+                            <input type="email" id="correo" name="correo" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="contrasena">🔒 Contraseña</label>
+                            <input type="password" id="contrasena" name="contrasena" />
+                        </div>
+                    <div class="input-group">
+                        <label for="cargo">💼 Cargo</label>
+                        <select id="cargo" name="cargo" required>
+                            <option value="">Seleccionar cargo</option>
+                            <option value="estudiante">Estudiante</option>
+                            <option value="rector">Rector</option>
+                            <option value="supervisor">Supervisor</option>
+                            <option value="tecnico">Técnico</option>
+                        </select>
+                    </div> <!-- ✅ este div FALTABA -->
+
+                    <div class="input-group">
+                        <label for="estado">🟢 Estado</label>
+                        <select id="estado" name="estado" required>
+                            <option value="">Seleccionar estado</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" form="userForm" id="submitBtn">Crear Usuario</button>
+                </div>
+            </div>
+        </div>
+        <div id="confirmModal" class="modal">
+            <div class="modal-content confirm-modal">
+                <div class="modal-header">
+                    <h3>Confirmar Eliminación</h3>
+                    <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea eliminar este usuario?</p>
+                    <p><strong id="deleteUserName"></strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                    <button type="button" class="btn btn-delete" id="confirmDeleteBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+        <script src="js/common.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/usuarios.js"></script>
+    </body>
+</html>

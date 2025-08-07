@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema IUB</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body data-required-roles="rector,supervisor,tecnico,estudiante">
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+    <div id="dashboard-header"></div>
+
+    <main class="dashboard-main">
+        <!-- Stats Cards -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-content">
+                        <h3>Tareas Pendientes</h3>
+                        <p class="stat-number" id="pendingTasks">-</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3>Tareas Completadas</h3>
+                        <p class="stat-number" id="completedTasks">-</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card" data-roles="rector,supervisor">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3>Usuarios Activos</h3>
+                        <p class="stat-number" id="activeUsers">-</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-content">
+                        <h3>Incidencias Abiertas</h3>
+                        <p class="stat-number" id="openIncidents">-</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="actions-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3>🚀 Acciones Rápidas</h3>
+                </div>
+                <div class="actions-grid">
+                    <a href="tareas.html" class="action-card" data-roles="rector,supervisor,tecnico">
+                        <div class="action-icon">📋</div>
+                        <h4>Ver Tareas</h4>
+                        <p>Gestionar tareas asignadas</p>
+                    </a>
+
+                    <a href="incidencias.html" class="action-card"  data-roles="estudiante,rector,supervisor">
+                        <div class="action-icon">⚠️</div>
+                        <h4>Reportar Incidencia</h4>
+                        <p>Crear nuevo reporte técnico</p>
+                    </a>
+                    
+                    <a href="usuarios.html" class="action-card" data-roles="rector,supervisor">
+                        <div class="action-icon">👥</div>
+                        <h4>Gestionar Usuarios</h4>
+                        <p>Administrar usuarios del sistema</p>
+                    </a>
+                    
+                    <button class="action-card" onclick="showProfile()">
+                        <div class="action-icon">⚙️</div>
+                        <h4>Mi Perfil</h4>
+                        <p>Configurar cuenta</p>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+<section class="activity-section" data-roles="rector,supervisor, tecnico">
+    <div class="card">
+        <h3>📊 Actividad Reciente</h3>
+        <div class="activity-list" id="activityList">
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Cargando actividad...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+    <!-- Scripts -->
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

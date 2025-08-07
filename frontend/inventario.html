@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Inventario - Sistema IUB</title>
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/dashboard.css" />
+    </head>
+    <body data-required-roles="rector,supervisor">
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div id="dashboard-header"></div>
+
+        <main class="dashboard-main">
+            <section class="controls-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🔍 Filtros y Controles</h3>
+                        <button class="btn btn-primary" data-roles="rector,supervisor" onclick="openModal('crear')">➕ Nuevo Recurso</button>
+                    </div>
+                    <div class="controls-grid">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por nombre..." onkeyup="filterInventory()" />
+                        </div>
+                        <div class="input-group">
+                            <select id="tipoFilter" class="filter-select" onchange="filterInventory()">
+                                <option value="">Todos los tipos</option>
+                                <option value="herramienta">Herramientas</option>
+                                <option value="material">Materiales</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <select id="ubicacionFilter" class="filter-select" onchange="filterInventory()">
+                                <option value="">Todas las ubicaciones</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="loadInventory()">🔄 Actualizar</button>
+                    </div>
+                </div>
+            </section>
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🛠️</div>
+                        <div class="stat-content">
+                            <h3>Herramientas</h3>
+                            <p class="stat-number" id="totalHerramientas">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-content">
+                            <h3>Materiales</h3>
+                            <p class="stat-number" id="totalMateriales">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <h3>Total Items</h3>
+                            <p class="stat-number" id="totalItems">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-content">
+                            <h3>Stock Bajo</h3>
+                            <p class="stat-number" id="stockBajo">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="table-section">
+                <div class="card">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>📋 Lista de Recursos</h3>
+                            <span class="user-count" id="itemCount">0 recursos</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table" id="inventoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Cantidad</th>
+                                        <th>Ubicación</th>
+                                        <th>Descripción</th>
+                                        <th data-roles="supervisor,rector">⚙️ Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="6" class="loading-state">
+                                            <div class="loading-spinner"></div>
+                                            <p>Cargando inventario...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <div id="inventoryModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">➕ Nuevo Recurso</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="inventoryForm">
+                        <div class="input-group">
+                            <label for="nombre">🏷️ Nombre del Recurso *</label>
+                            <input type="text" id="nombre" name="nombre" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="tipo">📋 Tipo *</label>
+                            <select id="tipo" name="tipo" required>
+                                <option value="">Seleccionar tipo...</option>
+                                <option value="herramienta">🛠️ Herramienta</option>
+                                <option value="material">📦 Material</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="cantidad_disponible">📊 Cantidad Disponible *</label>
+                            <input type="number" id="cantidad_disponible" name="cantidad_disponible" min="0" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="ubicacion_id">📍 Ubicación *</label>
+                            <select id="ubicacion_id" name="ubicacion_id" required>
+                                <option value="">Seleccionar ubicación...</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="descripcion">📝 Descripción</label>
+                            <textarea id="descripcion" name="descripcion" rows="3" placeholder="Descripción del recurso..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveInventory()">💾 Guardar</button>
+                </div>
+            </div>
+        </div>
+        <div id="confirmModal" class="modal confirm-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>⚠️ Confirmar Eliminación</h3>
+                    <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar este recurso del inventario?</p>
+                    <p><strong id="deleteItemName"></strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                    <button type="button" class="btn btn-delete" onclick="confirmDelete()">🗑️ Eliminar</button>
+                </div>
+            </div>
+        </div>
+        <script src="js/common.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/inventario.js"></script>
+    </body>
+</html>

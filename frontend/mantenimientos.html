@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantenimientos - Sistema IUB</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body data-required-roles="rector,supervisor">
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+    <div id="dashboard-header"></div>
+
+
+    <main class="dashboard-main">
+        <!-- Stats Cards -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🛠️</div>
+                    <div class="stat-content">
+                        <h3>Total Mantenimientos</h3>
+                        <p class="stat-number" id="totalMaint">-</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-content">
+                        <h3>Próximos 7 días</h3>
+                        <p class="stat-number" id="upcomingMaint">-</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-content">
+                        <h3>Vencidos</h3>
+                        <p class="stat-number" id="overdueMaint">-</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3>Activos</h3>
+                        <p class="stat-number" id="activeMaint">-</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controls -->
+        <section class="controls-section">
+            <div class="controls-grid">
+                <input type="text" class="search-input" placeholder="🔍 Buscar mantenimientos..." id="searchInput">
+                <select class="filter-select" id="areaFilter">
+                    <option value="">Todas las áreas</option>
+                    <option value="TI">Tecnología e Información</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                    <option value="Infraestructura">Infraestructura</option>
+                    <option value="Seguridad">Seguridad</option>
+                    <option value="Limpieza">Limpieza</option>
+                </select>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activos</option>
+                    <option value="inactivo">Inactivos</option>
+                </select>
+                <button class="btn btn-primary" onclick="showCreateModal()">➕ Nuevo Mantenimiento</button>
+            </div>
+        </section>
+
+        <!-- Table -->
+        <section class="table-section">
+            <div class="card table-container">
+                <div class="table-header">
+                    <h3>📋 Lista de Mantenimientos</h3>
+                    <span class="user-count" id="maintCount">0 mantenimientos</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table" id="maintTable">
+                        <thead>
+                            <tr>
+                                <th>Tarea</th>
+                                <th>Área</th>
+                                <th>Frecuencia</th>
+                                <th>Responsable</th>
+                                <th>Próxima Ejecución</th>
+                                <th>Estado</th>
+                                <th class="actions-col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="maintTableBody">
+                            <tr class="loading-row">
+                                <td colspan="7">
+                                    <div class="loading-spinner"></div>
+                                    Cargando mantenimientos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Create/Edit -->
+    <div class="modal" id="maintModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">➕ Nuevo Mantenimiento</h3>
+                <button class="modal-close" onclick="closeMaintModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="maintForm">
+                    <div class="input-group">
+                        <label for="tarea_nombre">🏷️ Nombre de la Tarea *</label>
+                        <input type="text" id="tarea_nombre" required maxlength="255">
+                    </div>
+                    <div class="input-group">
+                        <label for="descripcion">📝 Descripción</label>
+                        <textarea id="descripcion" rows="3" maxlength="500"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="frecuencia_dias">📅 Frecuencia (días) *</label>
+                        <input type="number" id="frecuencia_dias" min="1" max="365" required>
+                        <small>Entre 1 y 365 días</small>
+                    </div>
+                    <div class="input-group">
+                        <label for="area_responsable">🏢 Área Responsable *</label>
+                        <select id="area_responsable" required>
+                            <option value="">Seleccionar área</option>
+                            <option value="TI">Tecnología e Información</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Infraestructura">Infraestructura</option>
+                            <option value="Seguridad">Seguridad</option>
+                            <option value="Limpieza">Limpieza</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="tecnico_responsable_id">👤 Técnico Responsable</label>
+                        <select id="tecnico_responsable_id">
+                            <option value="">Sin asignar</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMaintModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveMaintenance()" id="saveBtn">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirm -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content confirm-modal">
+            <div class="modal-header">
+                <h3 id="confirmTitle">⚠️ Confirmar Acción</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">¿Está seguro de realizar esta acción?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmAction()" id="confirmBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/mantenimientos.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+npm install express mysql2 dotenv cors express-fileupload jsonwebtoken bcryptjs node-schedule

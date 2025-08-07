@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Incidencias - Sistema IUB</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/incidencias.css" />
+</head>
+
+<body data-required-roles="rector,supervisor,estudiante">
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div id="dashboard-header"></div>
+    <main class="dashboard-main">
+        <section class="controls-section">
+            <div class="controls-grid">
+                <div class="search-box">
+                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar incidencias..." />
+                </div>
+                <div class="filter-box">
+                    <select id="prioridadFilter" class="filter-select">
+                            <option value="">Todas las prioridades</option>
+                            <option value="alta">Alta</option>
+                            <option value="media">Media</option>
+                            <option value="baja">Baja</option>
+                        </select>
+                </div>
+                <div class="filter-box">
+                    <select id="ubicacionFilter" class="filter-select">
+                            <option value="">Todas las ubicaciones</option>
+                            <option value="">...</option>
+                        </select>
+                </div>
+                <button class="btn btn-primary" onclick="showCreateModal()">➕ Nueva Incidencia</button>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div class="card table-container">
+                <div class="table-header">
+                    <h3>📋 Lista de Incidencias</h3>
+                    <span class="incidencia-count" id="incidenciaCount">0 incidencias</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table" id="incidenciasTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>📍 Ubicación</th>
+                                <th>🔧 Fallas reportadas</th>
+                                <th>⚡ Prioridad</th>
+                                <th>👤 Reportado por</th>
+                                <th>📅 Fecha Reporte</th>
+                                <th>📝 Descripción</th>
+                                <th class="actions-col">⚙️ Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incidenciasTableBody">
+                            <tr class="loading-row">
+                                <td colspan="7">
+                                    <div class="loading-state">
+                                        <div class="loading-spinner"></div>
+                                        <p>⏳ Cargando incidencias...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <p>📭 No se encontraron incidencias</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Crear/Editar Incidencia -->
+    <!-- Modal Crear/Editar Incidencia -->
+    <div id="incidenciaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">➕ Nueva Incidencia</h3>
+                <button class="modal-close" onclick="hideModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="incidenciaForm">
+                    <div class="input-group">
+                        <label for="bloqueSelect">🏢 Bloque</label>
+                        <select id="bloqueSelect" required></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="pisoSelect">🏬 Piso</label>
+                        <select id="pisoSelect" required disabled></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="ubicacion_id">📍 Recurso</label>
+                        <select id="ubicacion_id" name="ubicacion_id" required disabled></select>
+                    </div>
+                    <div class="input-group" id="daniosAzotea" style="display: none;">
+                        <label>🔧 Seleccione aspectos a revisar en azotea</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" value="Falta de limpieza en azotea" /> Falta de limpieza en azotea</label>
+                            <label><input type="checkbox" value="No se limpiaron bajantes" /> No se limpiaron bajantes</label>
+                            <label><input type="checkbox" value="No se inspeccionó impermeabilización" /> No se inspeccionó impermeabilización</label>
+                            <label><input type="checkbox" value="Impermeabilización en mal estado" /> Impermeabilización en mal estado</label>
+                            <label><input type="checkbox" value="Otros" /> Otros</label>
+                        </div>
+                    </div>
+
+                    <div class="input-group" id="daniosNormales" style="display: none;">
+                        <label>🔧 INDIQUE FALLA A REPORTAR</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" value="SILLA ESTUDIANTE" /> SILLA ESTUDIANTE</label>
+                            <label><input type="checkbox" value="SILLA DOCENTE" /> SILLA DOCENTE</label>
+                            <label><input type="checkbox" value="LUCES" /> LUCES</label>
+                            <label><input type="checkbox" value="TOMA CORRIENTE" /> TOMA CORRIENTE</label>
+                            <label><input type="checkbox" value="TELEVISOR" /> TELEVISOR</label>
+                            <label><input type="checkbox" value="PUERTA" /> PUERTA</label>
+                            <label><input type="checkbox" value="CERRADURA" /> CERRADURA</label>
+                            <label><input type="checkbox" value="VENTANA" /> VENTANA</label>
+                            <label><input type="checkbox" value="TABLEROS" /> TABLEROS</label>
+                            <label><input type="checkbox" value="ESCRITORIO DOCENTE" /> ESCRITORIO DOCENTE</label>
+                            <label><input type="checkbox" value="AIRE ACONDICIONADO" /> AIRE ACONDICIONADO</label>
+                            <label><input type="checkbox" value="INTERRUPTOR" /> INTERRUPTOR</label>
+                            <label><input type="checkbox" value="SANITARIO" /> SANITARIO</label>
+                            <label><input type="checkbox" value="LAVAMANO" /> LAVAMANO</label>
+                            <label><input type="checkbox" value="ORINAL" /> ORINAL</label>
+                            <label><input type="checkbox" value="FUMIGACIÓN" /> FUMIGACIÓN</label>
+                            <label><input type="checkbox" value="Otras" /> Otras</label>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="descripcion">📝 Descripción</label>
+                        <textarea id="descripcion" rows="4" required placeholder="Describa brevemente la falla, si es más de una falla especificar cada una..."></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="prioridad">⚡ Prioridad</label>
+                        <select id="prioridad" required>
+                        <option value="">Seleccionar prioridad</option>
+                        <option value="alta">🔴 Alta</option>
+                        <option value="media">🟡 Media</option>
+                        <option value="baja">🟢 Baja</option>
+                    </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="hideModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn" onclick="saveIncidencia()">💾 Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ Modal Confirmación de Eliminación (moved out of above modal) -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content confirm-modal">
+            <div class="modal-header">
+                <h3>⚠️ Confirmar Eliminación</h3>
+                <button class="modal-close" onclick="hideConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar esta incidencia?</p>
+                <p><strong>Esta acción no se puede deshacer.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideConfirmModal()">Cancelar</button>
+                <button type="button" class="btn btn-delete" id="confirmDeleteBtn">🗑️ Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/incidencias.js"></script>
+</body>
+
+</html>

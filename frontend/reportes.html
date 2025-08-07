@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Sistema IUB</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body data-required-roles="rector,supervisor">
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div id="dashboard-header"></div>
+
+    <main class="dashboard-main">
+        <section class="controls-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3>🔍 Filtros de Reportes</h3>
+                </div>
+                <div class="controls-grid">
+                    <div class="input-group">
+                        <label>Técnico:</label>
+                        <select id="tecnicoSelect" class="filter-select">
+                            <option value="">Todos los técnicos</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="refreshReports()">🔄 Actualizar</button>
+                    <button class="btn btn-primary" onclick="exportReport()">📥 Exportar</button>
+                </div>
+            </div>
+        </section>
+        <section class="charts-section">
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">📈 Resumen General</h3>
+                        <button class="chart-refresh" onclick="loadGeneralReport()">🔄</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="generalChart"></canvas>
+                    </div>
+                    <div class="chart-stats" id="generalStats">
+                        <div class="chart-stat">
+                            <p class="chart-stat-value" id="totalTareas">-</p>
+                            <p class="chart-stat-label">Total Tareas</p>
+                        </div>
+                        <div class="chart-stat">
+                            <p class="chart-stat-value" id="completadas">-</p>
+                            <p class="chart-stat-label">Completadas</p>
+                        </div>
+                        <div class="chart-stat">
+                            <p class="chart-stat-value" id="pendientes">-</p>
+                            <p class="chart-stat-label">Pendientes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">🔧 Por Técnico</h3>
+                        <button class="chart-refresh" onclick="loadTechnicianReport()">🔄</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="technicianChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">📍 Por Ubicación</h3>
+                        <button class="chart-refresh" onclick="loadLocationReport()">🔄</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">📦 Inventario</h3>
+                        <button class="chart-refresh" onclick="loadInventoryReport()">🔄</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="inventoryChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card chart-large">
+                    <div class="chart-header">
+                        <h3 class="chart-title">⚠️ Tipos de Incidencias</h3>
+                        <button class="chart-refresh" onclick="loadIncidentTypes()">🔄</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="incidentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="table-section">
+            <div class="card">
+                <div class="table-header">
+                    <h3>📋 Reporte Detallado por Técnico</h3>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Técnico</th>
+                                <th>Total Tareas</th>
+                                <th>Completadas</th>
+                                <th>Pendientes</th>
+                                <th>% Eficiencia</th>
+                                <th>Promedio Días</th>
+                                <th>Incidencias</th>
+                            </tr>
+                        </thead>
+                        <tbody id="technicianTable">
+                            <tr class="loading-row">
+                                <td colspan="7">Cargando datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/reportes.js"></script>
+    <script>
+        function toggleTheme(){const body=document.body;const currentTheme=body.getAttribute('data-theme');const newTheme=currentTheme==='dark'?'light':'dark';body.setAttribute('data-theme',newTheme);localStorage.setItem('theme',newTheme);document.querySelector('.theme-toggle').textContent=newTheme==='dark'?'☀️':'🌙';}
+        document.addEventListener('DOMContentLoaded',()=>{const savedTheme=localStorage.getItem('theme')||'light';document.body.setAttribute('data-theme',savedTheme);document.querySelector('.theme-toggle').textContent=savedTheme==='dark'?'☀️':'🌙';initReports();});
+    </script>
+</body>
+</html>

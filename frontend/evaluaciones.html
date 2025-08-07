@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluaciones - Sistema IUB</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/evaluaciones.css">
+
+</head>
+<body data-required-roles="rector,supervisor">
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div id="dashboard-header"></div>
+
+    <main class="dashboard-main">
+        <section class="controls-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3>📊 Gestión de Evaluaciones</h3>
+                    <button class="btn btn-primary" onclick="showNewEvaluationModal()">+ Nueva Evaluación</button>
+                </div>
+                <div class="controls-grid">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar evaluaciones..." onkeyup="filterEvaluations()">
+                    </div>
+                    <div class="input-group">
+                        <select id="tecnicoFilter" class="filter-select" onchange="filterEvaluations()">
+                            <option value="">Todos los técnicos</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <select id="puntajeFilter" class="filter-select" onchange="filterEvaluations()">
+                            <option value="">Todos los puntajes</option>
+                            <option value="5">⭐⭐⭐⭐⭐ (5.0)</option>
+                            <option value="4">⭐⭐⭐⭐ (4.0+)</option>
+                            <option value="3">⭐⭐⭐ (3.0+)</option>
+                            <option value="2">⭐⭐ (2.0+)</option>
+                            <option value="1">⭐ (1.0+)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" onclick="refreshEvaluations()">🔄 Actualizar</button>
+                </div>
+            </div>
+        </section>
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3>Total Evaluaciones</h3>
+                        <p class="stat-number" id="totalEvaluations">-</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-content">
+                        <h3>Promedio General</h3>
+                        <p class="stat-number" id="averageScore">-</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3>Técnicos Evaluados</h3>
+                        <p class="stat-number" id="evaluatedTechnicians">-</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-content">
+                        <h3>Este Mes</h3>
+                        <p class="stat-number" id="monthlyEvaluations">-</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="table-section">
+            <div class="card">
+                <div class="table-header">
+                    <h3>📋 Lista de Evaluaciones</h3>
+                    <span class="user-count" id="evaluationCount">0 evaluaciones</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table" id="evaluationsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Técnico</th>
+                                <th>Supervisor</th>
+                                <th>Puntaje</th>
+                                <th>Fecha</th>
+                                <th>Observaciones</th>
+                                <th class="actions-col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evaluationsTableBody">
+                            <tr class="loading-row">
+                                <td colspan="7">
+                                    <div class="loading-state">
+                                        <div class="loading-spinner"></div>
+                                        <p>Cargando evaluaciones...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="evaluationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">📝 Nueva Evaluación</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="evaluationForm">
+                    <div class="input-group">
+                        <label for="tecnico_id">👤 Técnico *</label>
+                        <select id="tecnico_id" name="tecnico_id" required>
+                            <option value="">Seleccionar técnico...</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="puntaje">⭐ Puntaje *</label>
+                        <select id="puntaje" name="puntaje" required>
+                            <option value="">Seleccionar puntaje...</option>
+                            <option value="5">⭐⭐⭐⭐⭐ Excelente (5.0)</option>
+                            <option value="4">⭐⭐⭐⭐ Muy Bueno (4.0)</option>
+                            <option value="3">⭐⭐⭐ Bueno (3.0)</option>
+                            <option value="2">⭐⭐ Regular (2.0)</option>
+                            <option value="1">⭐ Deficiente (1.0)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="observaciones">📝 Observaciones</label>
+                        <textarea id="observaciones" name="observaciones" rows="4" placeholder="Comentarios adicionales sobre el desempeño..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveEvaluation()" id="saveBtn">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+    <div id="confirmModal" class="modal">
+        <div class="modal-content confirm-modal">
+            <div class="modal-header">
+                <h3>⚠️ Confirmar Eliminación</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar esta evaluación?</p>
+                <p><strong>Esta acción no se puede deshacer.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button type="button" class="btn btn-delete" onclick="confirmDelete()" id="confirmDeleteBtn">🗑️ Eliminar</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/evaluaciones.js"></script>
+</body>
+</html>
